@@ -6,6 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <cmath>
+#include <iostream>
 
 
 /*Computes the IOU distance between two bounding boxes
@@ -23,6 +24,6 @@ where x1,y1 is the top left and x2,y2 is the bottom right
 */
 cv::Vec4d ConvertZ2Box(cv::Vec4d& Z);
 
-cv::Rect ConvertY2Box(cv::Mat& Y)
+cv::Rect ConvertY2Box(cv::Mat& Y);
 #endif //UTILS_HPP
 

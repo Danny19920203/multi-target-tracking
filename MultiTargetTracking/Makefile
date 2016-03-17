@@ -1,11 +1,11 @@
 CC=gcc
 CXX=g++
 CFLAGS= -m64 -pipe -g -Wall -W -D_REENTRANT -fPIE
-CXXFLAGS= -m64 -pipe -g -Wall -W -D_REENTRANT -fPIE
+CXXFLAGS= -m64 -pipe -g -Wall -W -D_REENTRANT -fPIE -std=c++0x
 CAFFE_ROOT=/home/samlong/Documents/py-faster-rcnn/caffe-fast-rcnn
-INCS=-I$(CAFFE_ROOT)/include -I$(CAFFE_ROOT)/src -I/usr/local/cuda-7.5/include
+INCS=-I$(CAFFE_ROOT)/include -I$(CAFFE_ROOT)/src -I/usr/local/cuda-7.5/include -I/usr/local/include/opencv -I/usr/local/include/opencv2
 LIBS=-L$(CAFFE_ROOT)/build/lib/ -L/usr/local/lib/
-LDFLAGS= -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
+LDFLAGS= -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio -lopencv_tracking -lopencv_video
 LDFLAGS +=-lhdf5_hl -lhdf5 -lcaffe -lglog 
 SRC:=$(wildcard *.cpp)\
 	$(wildcard *.c)

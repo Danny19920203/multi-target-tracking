@@ -5,11 +5,10 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
-#include "utils.hpp"
-
 
 class KalmanBoxTracker
 {
@@ -20,7 +19,7 @@ class KalmanBoxTracker
         cv::Rect Update(cv::Rect&); //update the kalman filter
         cv::Rect GetState();
         
-        KalmanFiler* KF;
+        cv::KalmanFilter* KF;
         cv::Rect lastBbox;
         std::vector<cv::Rect> history;
         int state_dim = 7;

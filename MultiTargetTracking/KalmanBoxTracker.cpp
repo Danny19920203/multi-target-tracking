@@ -4,15 +4,40 @@ KalmanBoxTracker::KalmanBoxTracker(cv::Rect& bbox)
 {
     /*we use 7-dim vector as the state, 4-dim vector as the measure vector, no control vector*/
 
-    KF = new KalmanFilter(state_dim, measure_dim, 0);
+    KF = new cv::KalmanFilter(state_dim, measure_dim, 0);
     //transition matrix
     KF->transitionMatrix = (cv::Mat_<float>(7,7) <<1,0,0,0,1,0,0,  0,1,0,0,0,1,0,  0,0,1,0,0,0,1,  
                                                     0,0,0,1,0,0,0,  0,0,0,0,1,0,0,  0,0,0,0,0,1,0,  0,0,0,0,0,0,1); //Matrix F
     //TODO: implement with the var--state_dim and measure_dim
     KF->measurementMatrix = cv::Mat::eye(state_dim,measure_dim,CV_32F);  //Matrix H
-    cv::setIdentity(KF->measurementNoiseCov,cv::Scalar(1,1,10,10,10,10,10));
-    cv::setIdentity(KF->errorCovPost, cv::Scalar(10,10,10,10,1000,1000,1000)); //P
-    cv::setIdentity(KF->processNoiseCov, cv::Scalar(1,1,1,1,0.01,0.01,0.0001)); //Q
+
+    KF->measurementNoiseCov = cv::Mat::eye(state_dim,state_dim,CV_32F);
+    cv::Mat diagVec1 = KF->measurementNoiseCov.diag(0);
+    for (int i = 2; i < state_dim; i++)
+    {
+        diagVec1.at<float>(i) = 10;
+    }
+
+    KF->errorCovPost = cv::Mat::eye(state_dim,state_dim,CV_32F);
+    cv::Mat diagVec2 = KF->errorCovPost.diag(0);
+    for (int i = 0;i < state_dim;i++)
+    {
+        if (i<=2)
+            diagVec2.at<float>(i) = 10;
+        else
+            diagVec2.at<float>(i) = 1000;
+    }
+    
+    KF->processNoiseCov = cv::Mat::eye(state_dim,state_dim,CV_32F);
+    cv::Mat diagVec3 = KF->processNoiseCov.diag(0);
+    for (int i = 4;i < state_dim;i++)
+    {
+        if (i<=5)
+            diagVec3.at<float>(i) = 0.01;
+        else
+            diagVec2.at<float>(i) = 0.0001;
+    }
+
     
     KF->statePre.at<float>(0) = bbox.x;
     KF->statePre.at<float>(1) = bbox.y;
