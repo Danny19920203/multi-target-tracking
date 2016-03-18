@@ -1,3 +1,5 @@
 MultiPersonTracking
 *.o
 *.out
+faster_rcnn_detection.cpp
+faster_rcnn_detection.h

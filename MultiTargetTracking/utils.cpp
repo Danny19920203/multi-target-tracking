@@ -1,7 +1,7 @@
 #include "utils.hpp"
 
 
-double IOU(cv::Vec4d& bb_test, cv::Vec4d& bb_gt)
+float IOU(std::vector<float>& bb_test, std::vector<float>& bb_gt)
 {
     double xx1 = std::max(bb_test[0], bb_gt[0]);
     double yy1 = std::max(bb_test[1], bb_gt[1]);
@@ -17,9 +17,9 @@ double IOU(cv::Vec4d& bb_test, cv::Vec4d& bb_gt)
 
 }
 
-cv::Vec4d ConvertBox2Z(cv::Vec4d& bbox)
+std::vector<float>& ConvertBox2Z(std::vector<float>& bbox)
 {
-    cv::Vec4d z_box;
+    std::vector<float> z_box;
     double w = bbox[2] - bbox[0];
     double h = bbox[3] - bbox[1];
     z_box[0] = (bbox[0] + bbox[2]) / 2;
@@ -30,9 +30,9 @@ cv::Vec4d ConvertBox2Z(cv::Vec4d& bbox)
     return z_box;
 }
 
-cv::Vec4d ConvertZ2Box(cv::Vec4d& Z)
+std::vector<float>& ConvertZ2Box(std::vector<float>& Z)
 {
-    cv::Vec4d bbox;
+    std::vector<float> bbox;
     double w = std::sqrt(Z[2] * Z[3]);
     double h = Z[2] / w;
     bbox[0] = Z[0] - w/2.0;

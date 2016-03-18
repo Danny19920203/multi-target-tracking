@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
    }
    //test the hungarian algorithm
    testHungarian(nrows, ncols);
-   //test the video,detection and tracking
+   //test the video file, tracking by detection
    std::string prototxt = "/home/samlong/Documents/py-faster-rcnn/models/ZF/faster_rcnn_end2end/test2-C.prototxt";
    std::string caffemodel = "/home/samlong/Documents/py-faster-rcnn/output/SN-perser/trainval/zf_faster_rcnn_iter_70000.caffemodel";
    std::string video_file = "/home/samlong/Videos/video1.avi";

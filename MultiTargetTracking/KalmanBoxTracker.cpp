@@ -1,6 +1,6 @@
 #include "KalmanBoxTracker.hpp"
 
-KalmanBoxTracker::KalmanBoxTracker(cv::Rect& bbox)
+KalmanBoxTracker::KalmanBoxTracker(std::vector<float>& bbox)
 {
     /*we use 7-dim vector as the state, 4-dim vector as the measure vector, no control vector*/
 
@@ -38,19 +38,20 @@ KalmanBoxTracker::KalmanBoxTracker(cv::Rect& bbox)
             diagVec2.at<float>(i) = 0.0001;
     }
 
-    
-    KF->statePre.at<float>(0) = bbox.x;
-    KF->statePre.at<float>(1) = bbox.y;
-    KF->statePre.at<float>(2) = bbox.width * bbox.height;//scale = w*h
-    KF->statePre.at<float>(3) = bbox.width/bbox.height; //retiao
+    std::vector<float> Z =  ConvertBox2Z(bbox);
+
+    KF->statePre.at<float>(0) = Z[0];
+    KF->statePre.at<float>(1) = Z[1];
+    KF->statePre.at<float>(2) = Z[2];//scale = w*h
+    KF->statePre.at<float>(3) = Z[3]; //retiao
     KF->statePre.at<float>(4) = 0;
     KF->statePre.at<float>(5) = 0; //scale = w*h
     KF->statePre.at<float>(6) = 0; //retiao
 
-    KF->statePost.at<float>(0) = bbox.x;
-    KF->statePost.at<float>(1) = bbox.y;
-    KF->statePost.at<float>(2) = bbox.width * bbox.height;//scale = w*h
-    KF->statePost.at<float>(3) = bbox.width/bbox.height; //retiao
+    KF->statePost.at<float>(0) = Z[0];
+    KF->statePost.at<float>(1) = Z[1];
+    KF->statePost.at<float>(2) = Z[2];//scale = w*h
+    KF->statePost.at<float>(3) = Z[3]; //retiao
 
     lastBbox = bbox;
     history.clear();
@@ -68,7 +69,7 @@ KalmanBoxTracker::~KalmanBoxTracker()
     delete KF;
 }
 
-cv::Rect KalmanBoxTracker::Update(cv::Rect& newBox)
+std::vector<float>& KalmanBoxTracker::Update(std::vector<float>& newBox)
 {//update the box state with the new box
     time_since_update =0;
     history.clear();
@@ -76,30 +77,46 @@ cv::Rect KalmanBoxTracker::Update(cv::Rect& newBox)
     hit_streak += 1;
 
     cv::Mat measurement(4, 1, CV_32FC1);
-    measurement.at<float>(0) = newBox.x;
-    measurement.at<float>(1) = newBox.y;
-    measurement.at<float>(2) = newBox.width * newBox.height;
-    measurement.at<float>(3) = newBox.width/newBox.height;
+
+    std::vector<float> Z =  ConvertBox2Z(newBox);
+    measurement.at<float>(0) = Z[0];
+    measurement.at<float>(1) = Z[1];
+    measurement.at<float>(2) = Z[2];
+    measurement.at<float>(3) = Z[3];
 
     cv::Mat estimated = KF->correct(measurement);
-    lastBbox.x = estimated.at<float>(0);
-    lastBbox.y = estimated.at<float>(1);
-    lastBbox.width = std::sqrt(estimated.at<float>(2) * estimated.at<float>(3));
-    lastBbox.height = estimated.at<float>(2) / lastBbox.width;
+    std::vector<float> est_Z(estimated.rows);
+    for (int i = 0; i < estimated.rows; i++)
+    {
+        est_Z[i] = estimated.at<float>(i);
+    }
+    lastBbox = ConvertZ2Box(est_Z);
     return lastBbox;
 }
 
-cv::Rect KalmanBoxTracker::Prediction()
+std::vector<float>& KalmanBoxTracker::Predict()
 {
+    if(KF->statePre.at<float>(2) + KF->statePre.at<float>(6) <= 0)
+        KF->statePre.at<float>(6) *=0.0;
+
     cv::Mat prediction = KF->predict();
-    lastBbox.x = prediction.at<float>(0);
-    lastBbox.y = prediction.at<float>(1);
-    lastBbox.width = std::sqrt(prediction.at<float>(2) * prediction.at<float>(3));
-    lastBbox.height = prediction.at<float>(2) / lastBbox.width;
+    age +=1;
+    if(time_since_update>0)
+        hit_streak = 0;
+    time_since_update +=1;
+
+    std::vector<float> pred_Z(prediction.rows);
+    for (int i = 0; i < prediction.rows; i++)
+    {
+        pred_Z[i] = prediction.at<float>(i);
+    }
+    lastBbox = ConvertZ2Box(pred_Z);
+    history.push_back(lastBbox);
+
     return lastBbox;
 }
 
-cv::Rect KalmanBoxTracker::GetState()
+std::vector<float>& KalmanBoxTracker::GetState()
 {
     return lastBbox;
 }

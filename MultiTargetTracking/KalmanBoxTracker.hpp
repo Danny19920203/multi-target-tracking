@@ -3,6 +3,7 @@
 #ifndef KALMANBOXTRACKER_HPP
 #define KALMANBOXTRACKER_HPP
 
+#include "utils.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -13,15 +14,15 @@
 class KalmanBoxTracker
 {
     public:
-        KalmanBoxTracker(cv::Rect&); //Rect(x1,y1,w,h),note the state is(x1,y1,s,r,...) s=w*h r=w/h
+        KalmanBoxTracker(std::vector<float>&); //vector(x1,y1,x2,y2),note the state is(x1,y1,s,r,...) s=w*h r=w/h
         ~KalmanBoxTracker();
-        cv::Rect Prediction(); //predict the box
-        cv::Rect Update(cv::Rect&); //update the kalman filter
-        cv::Rect GetState();
+        std::vector<float>& Predict(); //predict the box
+        std::vector<float>& Update(std::vector<float>&); //update the kalman filter
+        std::vector<float>& GetState();
         
         cv::KalmanFilter* KF;
-        cv::Rect lastBbox;
-        std::vector<cv::Rect> history;
+        std::vector<float> lastBbox;
+        std::vector<std::vector<float> > history;
         int state_dim = 7;
         int measure_dim = 4;
         float time_since_update;
