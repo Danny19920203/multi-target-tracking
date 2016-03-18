@@ -30,7 +30,7 @@
 
 void testHungarian(int nrows, int ncols)
 {
-    cv::Mat_<int> matrix(nrows, ncols);
+    cv::Mat_<float> matrix(nrows, ncols);
     
     //  srandom(time(NULL)); // Seed random number generator.
     std::mt19937 eng((std::random_device())());

@@ -17,12 +17,13 @@ class Sort
 public:
     Sort(int age = 1, int hits = 3);
     ~Sort();
-    data Update(data dets); //data: struct, bbox,score,index
+    std::vector<data> Update(std::vector<data>& dets); //data: struct, bbox,score,index
 
     int max_age;
     int min_hits;
     int frame_count;
     std::vector<KalmanBoxTracker> trackers;
+    std::vector<data> remain; 
 
 };
 

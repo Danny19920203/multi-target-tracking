@@ -15,6 +15,14 @@ struct data
     float score;
     int index;
 };
+
+struct get_matched
+{
+    std::vector<std::pair<int, int> > matched;
+    std::vector<int> unmatched_dets;
+    std::vector<int> unmatched_trks;
+};
+
 /*Computes the IOU distance between two bounding boxes
  the boundingbox form is[x1,y1,x2,y2]
 */

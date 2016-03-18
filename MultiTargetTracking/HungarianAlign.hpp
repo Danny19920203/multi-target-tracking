@@ -1,5 +1,5 @@
 /**This file implements the hungarian algorithm for allignment problem
-From http://soimy.github.io/munkres-opencv/
+From http://soimy.github.io/munkres-opencv/, change int to float
 **/
 /*
  *   Copyright (c) 2007 John Weaver
@@ -22,6 +22,7 @@ From http://soimy.github.io/munkres-opencv/
 #ifndef HUNGARIAN_HPP
 #define HUNGARIAN_HPP
 
+#include "utils.hpp"
 #include <list>
 #include <utility>
 #include <opencv2/opencv.hpp>
@@ -30,13 +31,14 @@ class Munkres {
 public:
     Munkres();
     ~Munkres(){};
-    void solve(cv::Mat_<int> &m);
+    void solve(cv::Mat_<float> &m);
     void diag(bool);
+    get_matched assign(std::vector<data>& dets, std::vector<data>& trks);
 private:
     static const int NORMAL = 0;
     static const int STAR = 1;
     static const int PRIME = 2;
-    inline bool find_uncovered_in_matrix(double, unsigned int&, unsigned int&) const;
+    inline bool find_uncovered_in_matrix(float, unsigned int&, unsigned int&) const;
     inline bool pair_in_list(const std::pair<int,int> &, const std::list<std::pair<int,int> > &);
     int step1(void);
     int step2(void);
@@ -46,7 +48,7 @@ private:
     int step6(void);
     
     cv::Mat_<int> mask_matrix;
-    cv::Mat_<int> matrix;
+    cv::Mat_<float> matrix;
     bool *row_mask;
     bool *col_mask;
     unsigned int saverow, savecol;

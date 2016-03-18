@@ -25,23 +25,23 @@
 
 
 unsigned int
-minsize(cv::Mat_<int> &m) {
+minsize(cv::Mat_<float> &m) {
     return (m.rows < m.cols) ? m.rows : m.cols;
 }
 
-int
-maxValue(cv::Mat_<int> &m) {
-    int max = 0;//std::numeric_limits<int>::min();
+float
+maxValue(cv::Mat_<float> &m) {
+    float max = 0;//std::numeric_limits<int>::min();
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.cols; j++) {
-            max = std::max<int>(max, m(i,j));
+            max = std::max<float>(max, m(i,j));
         }
     }
     return max;
 }
 
-void
-extendMat(cv::Mat_<int> &m, unsigned int rows, unsigned int cols, int value = 0) {
+template<typename T>
+void extendMat(cv::Mat_<T> &m, unsigned int rows, unsigned int cols, int value = 0) {
     cv::Size2i interSize;
     interSize.height = std::min<int>(rows, m.rows);
     interSize.width = std::min<int>(cols, m.cols);
@@ -53,13 +53,13 @@ extendMat(cv::Mat_<int> &m, unsigned int rows, unsigned int cols, int value = 0)
 }
 
 void
-replace_infinites(cv::Mat_<int> &matrix) {
+replace_infinites(cv::Mat_<float> &matrix) {
     const unsigned int rows = matrix.rows,
     columns = matrix.cols;
     //  assert( rows > 0 && columns > 0 );
     if(rows==0 || columns==0)
         return;
-    double max = matrix(0, 0);
+    float max = matrix(0, 0);
     const auto infinity = std::numeric_limits<int>::infinity();
     
     // Find the greatest value in the matrix that isn't infinity.
@@ -69,7 +69,7 @@ replace_infinites(cv::Mat_<int> &matrix) {
                 if ( max == infinity ) {
                     max = matrix(row, col);
                 } else {
-                    max = std::max<int>(max, matrix(row, col));
+                    max = std::max<float>(max, matrix(row, col));
                 }
             }
         }
@@ -78,7 +78,7 @@ replace_infinites(cv::Mat_<int> &matrix) {
     // a value higher than the maximum value present in the matrix.
     if ( max == infinity ) {
         // This case only occurs when all values are infinite.
-        max = 0;
+        max = 0.0;
     } else {
         max++;
     }
@@ -94,20 +94,20 @@ replace_infinites(cv::Mat_<int> &matrix) {
 }
 
 void
-minimize_along_direction(cv::Mat_<int> &matrix, bool over_columns) {
+minimize_along_direction(cv::Mat_<float> &matrix, bool over_columns) {
     const unsigned int outer_size = over_columns ? matrix.cols : matrix.rows,
     inner_size = over_columns ? matrix.rows : matrix.cols;
     
     // Look for a minimum value to subtract from all values along
     // the "outer" direction.
     for ( unsigned int i = 0 ; i < outer_size ; i++ ) {
-        double min = over_columns ? matrix(0, i) : matrix(i, 0);
+        float min = over_columns ? matrix(0, i) : matrix(i, 0);
         
         // As long as the current minimum is greater than zero,
         // keep looking for the minimum.
         // Start at one because we already have the 0th value in min.
         for ( unsigned int j = 1 ; j < inner_size && min > 0 ; j++ ) {
-            min = std::min<int>(
+            min = std::min<float>(
                                 min,
                                 over_columns ? matrix(j, i) : matrix(i, j));
         }
@@ -126,7 +126,7 @@ minimize_along_direction(cv::Mat_<int> &matrix, bool over_columns) {
 
 
 bool
-Munkres::find_uncovered_in_matrix(double item, unsigned int &row, unsigned int &col) const {
+Munkres::find_uncovered_in_matrix(float item, unsigned int &row, unsigned int &col) const {
     unsigned int rows = matrix.rows,
     columns = matrix.cols;
     
@@ -163,7 +163,7 @@ Munkres::step1(void) {
     
     for ( unsigned int row = 0 ; row < rows ; row++ ) {
         for ( unsigned int col = 0 ; col < columns ; col++ ) {
-            if ( 0 == matrix(row, col) ) {
+            if ( 0.0 == matrix(row, col) ) {
                 bool isstarred = false;
                 for ( unsigned int nrow = 0 ; nrow < rows ; nrow++ )
                     if ( STAR == mask_matrix(nrow,col) ) {
@@ -362,7 +362,7 @@ Munkres::step5(void) {
      3. Subtract h from all uncovered columns
      4. Return to Step 3, without altering stars, primes, or covers.
      */
-    double h = 0;
+    float h = 0;
     for ( unsigned int row = 0 ; row < rows ; row++ ) {
         if ( !row_mask[row] ) {
             for ( unsigned int col = 0 ; col < columns ; col++ ) {
@@ -405,7 +405,7 @@ Munkres::step5(void) {
  *
  */
 void
-Munkres::solve(cv::Mat_<int> &m) {
+Munkres::solve(cv::Mat_<float> &m) {
     const unsigned int rows = m.rows,
     columns = m.cols,
     size = std::max<unsigned int>(rows, columns);
@@ -522,6 +522,11 @@ Munkres::solve(cv::Mat_<int> &m) {
     
     delete [] row_mask;
     delete [] col_mask;
+}
+
+get_matched Munkres::assign(std::vector<data>& dets, std::vector<data>& trks)
+{
+    
 }
 
 Munkres::Munkres(){

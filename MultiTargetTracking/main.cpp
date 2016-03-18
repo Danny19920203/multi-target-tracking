@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
    std::string video_file = "/home/samlong/Videos/video1.avi";
 
    cv::VideoCapture cap;
-   // cap.open(0);
-   cap.open(video_file);
+   cap.open(0);
+   // cap.open(video_file);
    if(!cap.isOpened())
    {
       std::cout<<"It is not captured!"<<std::endl;
@@ -39,13 +39,19 @@ int main(int argc, char *argv[])
    handle.setNet(prototxt,caffemodel,"new-finetune");
    
    cv::namedWindow("Video", CV_WINDOW_AUTOSIZE);
+
+   int counter = 0;
    while(cap.read(image))
    {
     /*detect first, then tracking*/
-    cv::Mat img = handle.ImDetect(image);
-    cv::imshow("Video", img);
-    if(cv::waitKey(10) == 'q')
-      break;
+    if(counter%2 == 0)
+    {
+      cv::Mat img = handle.ImDetect(image);
+      cv::imshow("Video", img);
+      if(cv::waitKey(10) == 'q')
+         break;
+    }
+    counter++;
    }
 
 return 0;
