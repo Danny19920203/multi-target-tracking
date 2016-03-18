@@ -26,10 +26,11 @@ int main(int argc, char *argv[])
    std::string prototxt = "/home/samlong/Documents/py-faster-rcnn/models/ZF/faster_rcnn_end2end/test2-C.prototxt";
    std::string caffemodel = "/home/samlong/Documents/py-faster-rcnn/output/SN-perser/trainval/zf_faster_rcnn_iter_70000.caffemodel";
    std::string video_file = "/home/samlong/Videos/video1.avi";
-
+   
+   Sort mot_tracker; //tracker
    cv::VideoCapture cap;
-   cap.open(0);
-   // cap.open(video_file);
+   // cap.open(0);
+   cap.open(video_file);
    if(!cap.isOpened())
    {
       std::cout<<"It is not captured!"<<std::endl;
@@ -46,11 +47,15 @@ int main(int argc, char *argv[])
     /*detect first, then tracking*/
     if(counter%2 == 0)
     {
-      cv::Mat img = handle.ImDetect(image);
+      cv::Mat img1 = handle.ImDetect(image);
+      std::vector<data> trackers = mot_tracker.Update(handle.getBoxData());
+      cv::Mat img = vis_tracker(image, trackers);
       cv::imshow("Video", img);
       if(cv::waitKey(10) == 'q')
          break;
     }
+
+
     counter++;
    }
 

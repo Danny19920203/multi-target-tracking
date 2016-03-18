@@ -8,6 +8,10 @@ Sort::Sort( int age, int hits)
     trackers.clear();
 }
 
+Sort::~Sort()
+{
+    trackers.clear();
+}
 std::vector<data> Sort::Update(std::vector<data>& dets)
 {
     frame_count +=1;
@@ -43,7 +47,7 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
     
     Munkres m; //Hungarian
     m.diag(false);
-    get_matched GM = m.assign(dets, pred_trks);  //Hungarian algorithm
+    get_matched GM = m.assign(dets, pred_trks, 0.3);  //Hungarian algorithm
     
     /*Then, update matched trackers with assigned detections*/
     for ( int i=0; i < (int)trackers.size(); i++)

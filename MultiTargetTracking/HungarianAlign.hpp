@@ -33,7 +33,7 @@ public:
     ~Munkres(){};
     void solve(cv::Mat_<float> &m);
     void diag(bool);
-    get_matched assign(std::vector<data>& dets, std::vector<data>& trks);
+    get_matched assign(std::vector<data>& dets, std::vector<data>& trks, float iou_threshold = 0.3);
 private:
     static const int NORMAL = 0;
     static const int STAR = 1;

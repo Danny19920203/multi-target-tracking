@@ -41,3 +41,15 @@ std::vector<float>& ConvertZ2Box(std::vector<float>& Z)
     bbox[3] = Z[1] + h/2.0;
     return bbox;
 }
+
+cv::Mat vis_tracker(cv::Mat& img, std::vector<data>& trackers)
+{
+    for(unsigned int i = 0; i < trackers.size(); i++)
+    {
+      std::vector<float> bbox = trackers[i].bbox;
+      cv::rectangle(img, cv::Point(bbox[0], bbox[1]), cv::Point(bbox[2], bbox[3]), cv::Scalar(50 + trackers[i].index%32, 100 + trackers[i].index%32, 
+              150 + trackers[i].index%32), 2);//draw the bounding box
+    }
+    cv::Mat image = img.clone();
+    return image;
+}

@@ -524,9 +524,85 @@ Munkres::solve(cv::Mat_<float> &m) {
     delete [] col_mask;
 }
 
-get_matched Munkres::assign(std::vector<data>& dets, std::vector<data>& trks)
+get_matched Munkres::assign(std::vector<data>& dets, std::vector<data>& trks, float iou_threshold)
 {
+    get_matched m;
+    if(trks.size() == 0)
+    {
+      
+      std::pair<int, int>a;
+      a.first = 0; a.second = 0;
+      m.matched.push_back(a);
+
+      m.unmatched_dets.push_back(0);
+      m.unmatched_trks.push_back(0);
+      return m;
+    }
     
+    cv::Mat_<float> matrix(dets.size(), trks.size());
+    for(unsigned int row = 0; row<dets.size(); row++)
+        for(unsigned int col = 0; col<trks.size(); col++)
+            matrix(row, col) = IOU(dets[row].bbox, trks[col].bbox);
+    
+    cv::Mat_<float> old_matrix = matrix.clone();
+    solve(matrix);
+
+    //filter out the unmatched detecions and unmatched trackers
+    std::vector<std::pair<int, int> >matched_idx;
+    std::vector<int> unmatched_dets; std::vector<int> unmatched_trks;
+    for(unsigned int i = 0; i < dets.size(); i++)
+    {
+        bool un_dets = true;
+        for(unsigned int j = 0; j < trks.size(); j++)
+        {
+            if(matrix(i, j)==0.0)
+            {
+                std::pair<int, int> foo;
+                foo.first = i; //detection
+                foo.second = j; //tracking
+                matched_idx.push_back(foo);
+                un_dets = false;
+                break;
+            }
+        }
+        if(un_dets)
+            unmatched_dets.push_back(i);
+    }
+    for (unsigned int j=0; j<trks.size(); j++)
+    {
+        bool un_trks = true;
+        for(unsigned int i=0; i<dets.size(); i++)
+        {
+            if(matrix(i,j)==0.0)
+            {
+                un_trks = false;
+                break;
+            }            
+        }
+        if(un_trks)
+            unmatched_trks.push_back(j);
+    }
+    
+    //filter out with low IOU value
+    std::vector<std::pair<int, int> > matches;
+    for (unsigned int i = 0; i < matched_idx.size(); i++)
+    {
+        if(old_matrix(matched_idx[i].first, matched_idx[i].second) < iou_threshold)
+        {
+            unmatched_dets.push_back(matched_idx[i].first);
+            unmatched_trks.push_back(matched_idx[i].second);            
+        }
+    else
+        matches.push_back(matched_idx[i]);
+
+    }
+
+    m.matched = matches;
+    m.unmatched_dets = unmatched_dets;
+    m.unmatched_trks = unmatched_trks;
+    return m;
+
+
 }
 
 Munkres::Munkres(){
@@ -536,27 +612,3 @@ Munkres::Munkres(){
 void Munkres::diag(bool status){
     isDiag = status;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

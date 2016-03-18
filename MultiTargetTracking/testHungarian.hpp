@@ -35,11 +35,11 @@ void testHungarian(int nrows, int ncols)
     //  srandom(time(NULL)); // Seed random number generator.
     std::mt19937 eng((std::random_device())());
     std::uniform_int_distribution<> dist(1,50);
-    
+
     // Initialize matrix with random values.
     for ( int row = 0 ; row < nrows ; row++ ) {
         for ( int col = 0 ; col < ncols ; col++ ) {
-            matrix(row,col) = (int)dist(eng);
+            matrix(row,col) = (float)dist(eng)/15;
         }
     }
     
@@ -47,7 +47,7 @@ void testHungarian(int nrows, int ncols)
     for ( int row = 0 ; row < nrows ; row++ ) {
         for ( int col = 0 ; col < ncols ; col++ ) {
             std::cout.width(2);
-            std::cout << (int)matrix(row,col) << ",";
+            std::cout << (float)matrix(row,col) << ",";
         }
         std::cout << std::endl;
     }

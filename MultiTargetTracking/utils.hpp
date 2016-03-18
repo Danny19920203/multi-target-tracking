@@ -5,6 +5,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/videoio/videoio.hpp>
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -37,6 +38,9 @@ std::vector<float>& ConvertBox2Z(std::vector<float>& bbox);
 where x1,y1 is the top left and x2,y2 is the bottom right
 */
 std::vector<float>& ConvertZ2Box(std::vector<float>& Z);
+
+/*Visualize the tracking result*/
+cv::Mat vis_tracker(cv::Mat& img, std::vector<data>& trackers);
 
 #endif //UTILS_HPP
 
