@@ -1,4 +1,3 @@
 MultiPersonTracking
 *.o
 *.out
-testHungarian.cpp
