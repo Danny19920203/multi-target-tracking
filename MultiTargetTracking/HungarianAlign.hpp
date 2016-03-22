@@ -30,7 +30,7 @@ From http://soimy.github.io/munkres-opencv/, change int to float
 class Munkres {
 public:
     Munkres();
-    ~Munkres(){};
+    ~Munkres() {};
     void solve(cv::Mat_<float> &m);
     void diag(bool);
     get_matched assign(std::vector<data>& dets, std::vector<data>& trks, float iou_threshold = 0.3);
@@ -39,14 +39,14 @@ private:
     static const int STAR = 1;
     static const int PRIME = 2;
     inline bool find_uncovered_in_matrix(float, unsigned int&, unsigned int&) const;
-    inline bool pair_in_list(const std::pair<int,int> &, const std::list<std::pair<int,int> > &);
+    inline bool pair_in_list(const std::pair<int, int> &, const std::list<std::pair<int, int> > &);
     int step1(void);
     int step2(void);
     int step3(void);
     int step4(void);
     int step5(void);
     int step6(void);
-    
+
     cv::Mat_<int> mask_matrix;
     cv::Mat_<float> matrix;
     bool *row_mask;

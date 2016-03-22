@@ -34,7 +34,7 @@ maxValue(cv::Mat_<float> &m) {
     float max = 0;//std::numeric_limits<int>::min();
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.cols; j++) {
-            max = std::max<float>(max, m(i,j));
+            max = std::max<float>(max, m(i, j));
         }
     }
     return max;
@@ -47,21 +47,21 @@ void extendMat(cv::Mat_<T> &m, unsigned int rows, unsigned int cols, int value =
     interSize.width = std::min<int>(cols, m.cols);
     cv::Mat tm(rows, cols, m.type());
     tm.setTo(cv::Scalar(value));
-    if(interSize.width!=0 && interSize.height!=0)
-        m(cv::Rect(cv::Point(0,0), interSize)).copyTo(tm(cv::Rect(cv::Point(0,0), interSize)));
+    if (interSize.width != 0 && interSize.height != 0)
+        m(cv::Rect(cv::Point(0, 0), interSize)).copyTo(tm(cv::Rect(cv::Point(0, 0), interSize)));
     m = tm;
 }
 
 void
 replace_infinites(cv::Mat_<float> &matrix) {
     const unsigned int rows = matrix.rows,
-    columns = matrix.cols;
+                       columns = matrix.cols;
     //  assert( rows > 0 && columns > 0 );
-    if(rows==0 || columns==0)
+    if (rows == 0 || columns == 0)
         return;
     float max = matrix(0, 0);
     const auto infinity = std::numeric_limits<int>::infinity();
-    
+
     // Find the greatest value in the matrix that isn't infinity.
     for ( unsigned int row = 0 ; row < rows ; row++ ) {
         for ( unsigned int col = 0 ; col < columns ; col++ ) {
@@ -74,7 +74,7 @@ replace_infinites(cv::Mat_<float> &matrix) {
             }
         }
     }
-    
+
     // a value higher than the maximum value present in the matrix.
     if ( max == infinity ) {
         // This case only occurs when all values are infinite.
@@ -82,7 +82,7 @@ replace_infinites(cv::Mat_<float> &matrix) {
     } else {
         max++;
     }
-    
+
     for ( unsigned int row = 0 ; row < rows ; row++ ) {
         for ( unsigned int col = 0 ; col < columns ; col++ ) {
             if ( matrix(row, col) == infinity ) {
@@ -90,28 +90,28 @@ replace_infinites(cv::Mat_<float> &matrix) {
             }
         }
     }
-    
+
 }
 
 void
 minimize_along_direction(cv::Mat_<float> &matrix, bool over_columns) {
     const unsigned int outer_size = over_columns ? matrix.cols : matrix.rows,
-    inner_size = over_columns ? matrix.rows : matrix.cols;
-    
+                       inner_size = over_columns ? matrix.rows : matrix.cols;
+
     // Look for a minimum value to subtract from all values along
     // the "outer" direction.
     for ( unsigned int i = 0 ; i < outer_size ; i++ ) {
         float min = over_columns ? matrix(0, i) : matrix(i, 0);
-        
+
         // As long as the current minimum is greater than zero,
         // keep looking for the minimum.
         // Start at one because we already have the 0th value in min.
         for ( unsigned int j = 1 ; j < inner_size && min > 0 ; j++ ) {
             min = std::min<float>(
-                                min,
-                                over_columns ? matrix(j, i) : matrix(i, j));
+                      min,
+                      over_columns ? matrix(j, i) : matrix(i, j));
         }
-        
+
         if ( min > 0 ) {
             for ( unsigned int j = 0 ; j < inner_size ; j++ ) {
                 if ( over_columns ) {
@@ -128,49 +128,49 @@ minimize_along_direction(cv::Mat_<float> &matrix, bool over_columns) {
 bool
 Munkres::find_uncovered_in_matrix(float item, unsigned int &row, unsigned int &col) const {
     unsigned int rows = matrix.rows,
-    columns = matrix.cols;
-    
+                 columns = matrix.cols;
+
     for ( row = 0 ; row < rows ; row++ ) {
         if ( !row_mask[row] ) {
             for ( col = 0 ; col < columns ; col++ ) {
                 if ( !col_mask[col] ) {
-                    if ( matrix(row,col) == item ) {
+                    if ( matrix(row, col) == item ) {
                         return true;
                     }
                 }
             }
         }
     }
-    
+
     return false;
 }
 
 bool
-Munkres::pair_in_list(const std::pair<int,int> &needle, const std::list<std::pair<int,int> > &haystack) {
-    for ( std::list<std::pair<int,int> >::const_iterator i = haystack.begin() ; i != haystack.end() ; i++ ) {
+Munkres::pair_in_list(const std::pair<int, int> &needle, const std::list<std::pair<int, int> > &haystack) {
+    for ( std::list<std::pair<int, int> >::const_iterator i = haystack.begin() ; i != haystack.end() ; i++ ) {
         if ( needle == *i ) {
             return true;
         }
     }
-    
+
     return false;
 }
 
 int
 Munkres::step1(void) {
     const unsigned int rows = matrix.rows,
-    columns = matrix.cols;
-    
+                       columns = matrix.cols;
+
     for ( unsigned int row = 0 ; row < rows ; row++ ) {
         for ( unsigned int col = 0 ; col < columns ; col++ ) {
             if ( 0.0 == matrix(row, col) ) {
                 bool isstarred = false;
                 for ( unsigned int nrow = 0 ; nrow < rows ; nrow++ )
-                    if ( STAR == mask_matrix(nrow,col) ) {
+                    if ( STAR == mask_matrix(nrow, col) ) {
                         isstarred = true;
                         break;
                     }
-                
+
                 if ( !isstarred ) {
                     for ( unsigned int ncol = 0 ; ncol < columns ; ncol++ )
                         if ( STAR == mask_matrix(row, ncol) ) {
@@ -178,38 +178,38 @@ Munkres::step1(void) {
                             break;
                         }
                 }
-                
+
                 if ( !isstarred ) {
-                    mask_matrix(row,col) = STAR;
+                    mask_matrix(row, col) = STAR;
                 }
             }
         }
     }
-    
+
     return 2;
 }
 
 int
 Munkres::step2(void) {
     const unsigned int rows = matrix.rows,
-    columns = matrix.cols;
+                       columns = matrix.cols;
     unsigned int covercount = 0;
-    
+
     for ( unsigned int row = 0 ; row < rows ; row++ )
         for ( unsigned int col = 0 ; col < columns ; col++ )
             if ( STAR == mask_matrix(row, col) ) {
                 col_mask[col] = true;
                 covercount++;
             }
-    
+
     if ( covercount >= minsize(matrix) ) {
-        if(isDiag) {
+        if (isDiag) {
             std::cout << "Final cover count: " << covercount << std::endl;
         }
         return 0;
     }
-    
-    if(isDiag) {
+
+    if (isDiag) {
         std::cout << "Munkres matrix has " << covercount << " of " << minsize(matrix) << " Columns covered:" << std::endl;
         for ( unsigned int row = 0 ; row < rows ; row++ ) {
             for ( unsigned int col = 0 ; col < columns ; col++ ) {
@@ -220,8 +220,8 @@ Munkres::step2(void) {
         }
         std::cout << std::endl;
     }
-    
-    
+
+
     return 3;
 }
 
@@ -229,79 +229,79 @@ int
 Munkres::step3(void) {
     /*
      Main Zero Search
-     
+
      1. Find an uncovered Z in the distance matrix and prime it. If no such zero exists, go to Step 5
      2. If No Z* exists in the row of the Z', go to Step 4.
      3. If a Z* exists, cover this row and uncover the column of the Z*. Return to Step 3.1 to find a new Z
      */
     if ( find_uncovered_in_matrix(0, saverow, savecol) ) {
-        mask_matrix(saverow,savecol) = PRIME; // prime it.
+        mask_matrix(saverow, savecol) = PRIME; // prime it.
     } else {
         return 5;
     }
-    
+
     for ( int ncol = 0 ; ncol < matrix.cols ; ncol++ ) {
-        if ( mask_matrix(saverow,ncol) == STAR ) {
+        if ( mask_matrix(saverow, ncol) == STAR ) {
             row_mask[saverow] = true; //cover this row and
             col_mask[ncol] = false; // uncover the column containing the starred zero
             return 3; // repeat
         }
     }
-    
+
     return 4; // no starred zero in the row containing this primed zero
 }
 
 int
 Munkres::step4(void) {
     const unsigned int rows = matrix.rows,
-    columns = matrix.cols;
-    
+                       columns = matrix.cols;
+
     // seq contains pairs of row/column values where we have found
     // either a star or a prime that is part of the ``alternating sequence``.
-    std::list<std::pair<int,int> > seq;
+    std::list<std::pair<int, int> > seq;
     // use saverow, savecol from step 3.
-    std::pair<int,int> z0(saverow, savecol);
+    std::pair<int, int> z0(saverow, savecol);
     seq.insert(seq.end(), z0);
-    
+
     // We have to find these two pairs:
-    std::pair<int,int> z1(-1, -1);
-    std::pair<int,int> z2n(-1, -1);
-    
+    std::pair<int, int> z1(-1, -1);
+    std::pair<int, int> z2n(-1, -1);
+
     unsigned int row, col = savecol;
     /*
      Increment Set of Starred Zeros
-     
+
      1. Construct the ``alternating sequence'' of primed and starred zeros:
-     
+
      Z0 : Unpaired Z' from Step 4.2
      Z1 : The Z* in the column of Z0
      Z[2N] : The Z' in the row of Z[2N-1], if such a zero exists
      Z[2N+1] : The Z* in the column of Z[2N]
-     
+
      The sequence eventually terminates with an unpaired Z' = Z[2N] for some N.
      */
     bool madepair;
     do {
         madepair = false;
         for ( row = 0 ; row < rows ; row++ ) {
-            if ( mask_matrix(row,col) == STAR ) {
+            if ( mask_matrix(row, col) == STAR ) {
                 z1.first = row;
                 z1.second = col;
                 if ( pair_in_list(z1, seq) ) {
                     continue;
                 }
-                
+
                 madepair = true;
                 seq.insert(seq.end(), z1);
                 break;
             }
         }
-        
+
         if ( !madepair )
             break;
-        
+
         madepair = false;
-        
+
         for ( col = 0 ; col < columns ; col++ ) {
             if ( mask_matrix(row, col) == PRIME ) {
                 z2n.first = row;
@@ -315,37 +315,37 @@ Munkres::step4(void) {
             }
         }
     } while ( madepair );
-    
-    for ( std::list<std::pair<int,int> >::iterator i = seq.begin() ;
-         i != seq.end() ;
-         i++ ) {
+
+    for ( std::list<std::pair<int, int> >::iterator i = seq.begin() ;
+            i != seq.end() ;
+            i++ ) {
         // 2. Unstar each starred zero of the sequence.
-        if ( mask_matrix(i->first,i->second) == STAR )
-            mask_matrix(i->first,i->second) = NORMAL;
-        
+        if ( mask_matrix(i->first, i->second) == STAR )
+            mask_matrix(i->first, i->second) = NORMAL;
+
         // 3. Star each primed zero of the sequence,
         // thus increasing the number of starred zeros by one.
-        if ( mask_matrix(i->first,i->second) == PRIME )
-            mask_matrix(i->first,i->second) = STAR;
+        if ( mask_matrix(i->first, i->second) == PRIME )
+            mask_matrix(i->first, i->second) = STAR;
     }
-    
+
     // 4. Erase all primes, uncover all columns and rows,
     for (  int row = 0 ; row < mask_matrix.rows ; row++ ) {
         for ( int col = 0 ; col < mask_matrix.cols ; col++ ) {
-            if ( mask_matrix(row,col) == PRIME ) {
-                mask_matrix(row,col) = NORMAL;
+            if ( mask_matrix(row, col) == PRIME ) {
+                mask_matrix(row, col) = NORMAL;
             }
         }
     }
-    
+
     for ( unsigned int i = 0 ; i < rows ; i++ ) {
         row_mask[i] = false;
     }
-    
+
     for ( unsigned int i = 0 ; i < columns ; i++ ) {
         col_mask[i] = false;
     }
-    
+
     // and return to Step 2.
     return 2;
 }
@@ -353,10 +353,10 @@ Munkres::step4(void) {
 int
 Munkres::step5(void) {
     const unsigned int rows = matrix.rows,
-    columns = matrix.cols;
+                       columns = matrix.cols;
     /*
      New Zero Manufactures
-     
+
      1. Let h be the smallest uncovered entry in the (modified) distance matrix.
      2. Add h to all covered rows.
      3. Subtract h from all uncovered columns
@@ -374,7 +374,7 @@ Munkres::step5(void) {
             }
         }
     }
-    
+
     for ( unsigned int row = 0 ; row < rows ; row++ ) {
         if ( row_mask[row] ) {
             for ( unsigned int col = 0 ; col < columns ; col++ ) {
@@ -382,7 +382,7 @@ Munkres::step5(void) {
             }
         }
     }
-    
+
     for ( unsigned int col = 0 ; col < columns ; col++ ) {
         if ( !col_mask[col] ) {
             for ( unsigned int row = 0 ; row < rows ; row++ ) {
@@ -390,7 +390,7 @@ Munkres::step5(void) {
             }
         }
     }
-    
+
     return 3;
 }
 
@@ -407,10 +407,10 @@ Munkres::step5(void) {
 void
 Munkres::solve(cv::Mat_<float> &m) {
     const unsigned int rows = m.rows,
-    columns = m.cols,
-    size = std::max<unsigned int>(rows, columns);
-    
-    if(isDiag) {
+                       columns = m.cols,
+                       size = std::max<unsigned int>(rows, columns);
+
+    if (isDiag) {
         std::cout << "Munkres input matrix:" << std::endl;
         for ( unsigned int row = 0 ; row < rows ; row++ ) {
             for ( unsigned int col = 0 ; col < columns ; col++ ) {
@@ -421,74 +421,74 @@ Munkres::solve(cv::Mat_<float> &m) {
         }
         std::cout << std::endl;
     }
-    
+
     bool notdone = true;
     int step = 1;
-    
+
     // Copy input matrix
     this->matrix = m;
-    
+
     if ( rows != columns ) {
         // If the input matrix isn't square, make it square
         // and fill the empty values with the largest value present
         // in the matrix.
         extendMat(matrix, size, size, maxValue(matrix));
     }
-    
-    
+
+
     // STAR == 1 == starred, PRIME == 2 == primed
     //    mask_matrix.resize(size, size);
     extendMat(mask_matrix, size, size);
-    
+
     row_mask = new bool[size];
     col_mask = new bool[size];
     for ( unsigned int i = 0 ; i < size ; i++ ) {
         row_mask[i] = false;
     }
-    
+
     for ( unsigned int i = 0 ; i < size ; i++ ) {
         col_mask[i] = false;
     }
-    
+
     // Prepare the matrix values...
-    
+
     // If there were any infinities, replace them with a value greater
     // than the maximum value in the matrix.
     replace_infinites(matrix);
-    
+
     minimize_along_direction(matrix, false);
     minimize_along_direction(matrix, true);
-    
+
     // Follow the steps
     while ( notdone ) {
         switch ( step ) {
-            case 0:
-                notdone = false;
-                // end the step flow
-                break;
-            case 1:
-                step = step1();
-                // step is always 2
-                break;
-            case 2:
-                step = step2();
-                // step is always either 0 or 3
-                break;
-            case 3:
-                step = step3();
-                // step in [3, 4, 5]
-                break;
-            case 4:
-                step = step4();
-                // step is always 2
-                break;
-            case 5:
-                step = step5();
-                // step is always 3
-                break;
+        case 0:
+            notdone = false;
+            // end the step flow
+            break;
+        case 1:
+            step = step1();
+            // step is always 2
+            break;
+        case 2:
+            step = step2();
+            // step is always either 0 or 3
+            break;
+        case 3:
+            step = step3();
+            // step in [3, 4, 5]
+            break;
+        case 4:
+            step = step4();
+            // step is always 2
+            break;
+        case 5:
+            step = step5();
+            // step is always 3
+            break;
         }
     }
-    
+
     // Store results
     for ( unsigned int row = 0 ; row < size ; row++ ) {
         for ( unsigned int col = 0 ; col < size ; col++ ) {
@@ -499,8 +499,8 @@ Munkres::solve(cv::Mat_<float> &m) {
             }
         }
     }
-    
-    if(isDiag) {
+
+    if (isDiag) {
         std::cout << "Munkres output matrix:" << std::endl;
         for ( unsigned int row = 0 ; row < rows ; row++ ) {
             for ( unsigned int col = 0 ; col < columns ; col++ ) {
@@ -511,15 +511,15 @@ Munkres::solve(cv::Mat_<float> &m) {
         }
         std::cout << std::endl;
     }
-    
-    
+
+
     // Remove the excess rows or columns that we added to fit the
     // input to a square matrix.
     //    matrix.resize(rows, columns);
     extendMat(matrix, rows, columns);
-    
+
     m = matrix;
-    
+
     delete [] row_mask;
     delete [] col_mask;
 }
@@ -527,35 +527,37 @@ Munkres::solve(cv::Mat_<float> &m) {
 get_matched Munkres::assign(std::vector<data>& dets, std::vector<data>& trks, float iou_threshold)
 {
     get_matched m;
-    if(trks.size() == 0)
+    if (trks.size() == 0)
     {
-      
-      std::pair<int, int>a;
-      a.first = 0; a.second = 0;
-      m.matched.push_back(a);
 
-      m.unmatched_dets.push_back(0);
-      m.unmatched_trks.push_back(0);
-      return m;
+        std::pair<int, int>a;
+        a.first = -1; a.second = -1; //-1 means no matched
+        m.matched.push_back(a);
+
+        // m.unmatched_dets.push_back(0);
+        for (unsigned int i = 0; i < dets.size(); i++)
+            m.unmatched_dets.push_back(i);
+        m.unmatched_trks.push_back(-1); //-1 means no matching
+        return m;
     }
-    
+
     cv::Mat_<float> matrix(dets.size(), trks.size());
-    for(unsigned int row = 0; row<dets.size(); row++)
-        for(unsigned int col = 0; col<trks.size(); col++)
+    for (unsigned int row = 0; row < dets.size(); row++)
+        for (unsigned int col = 0; col < trks.size(); col++)
             matrix(row, col) = IOU(dets[row].bbox, trks[col].bbox);
-    
+
     cv::Mat_<float> old_matrix = matrix.clone();
     solve(matrix);
 
     //filter out the unmatched detecions and unmatched trackers
     std::vector<std::pair<int, int> >matched_idx;
     std::vector<int> unmatched_dets; std::vector<int> unmatched_trks;
-    for(unsigned int i = 0; i < dets.size(); i++)
+    for (unsigned int i = 0; i < dets.size(); i++)
     {
         bool un_dets = true;
-        for(unsigned int j = 0; j < trks.size(); j++)
+        for (unsigned int j = 0; j < trks.size(); j++)
         {
-            if(matrix(i, j)==0.0)
+            if (matrix(i, j) == 0.0)
             {
                 std::pair<int, int> foo;
                 foo.first = i; //detection
@@ -565,35 +567,35 @@ get_matched Munkres::assign(std::vector<data>& dets, std::vector<data>& trks, fl
                 break;
             }
         }
-        if(un_dets)
+        if (un_dets)
             unmatched_dets.push_back(i);
     }
-    for (unsigned int j=0; j<trks.size(); j++)
+    for (unsigned int j = 0; j < trks.size(); j++)
     {
         bool un_trks = true;
-        for(unsigned int i=0; i<dets.size(); i++)
+        for (unsigned int i = 0; i < dets.size(); i++)
         {
-            if(matrix(i,j)==0.0)
+            if (matrix(i, j) == 0.0)
             {
                 un_trks = false;
                 break;
-            }            
+            }
         }
-        if(un_trks)
+        if (un_trks)
             unmatched_trks.push_back(j);
     }
-    
+
     //filter out with low IOU value
     std::vector<std::pair<int, int> > matches;
     for (unsigned int i = 0; i < matched_idx.size(); i++)
     {
-        if(old_matrix(matched_idx[i].first, matched_idx[i].second) < iou_threshold)
+        if (old_matrix(matched_idx[i].first, matched_idx[i].second) < iou_threshold)
         {
             unmatched_dets.push_back(matched_idx[i].first);
-            unmatched_trks.push_back(matched_idx[i].second);            
+            unmatched_trks.push_back(matched_idx[i].second);
         }
-    else
-        matches.push_back(matched_idx[i]);
+        else
+            matches.push_back(matched_idx[i]);
 
     }
 
@@ -605,10 +607,10 @@ get_matched Munkres::assign(std::vector<data>& dets, std::vector<data>& trks, fl
 
 }
 
-Munkres::Munkres(){
+Munkres::Munkres() {
     isDiag = false;
 }
 
-void Munkres::diag(bool status){
+void Munkres::diag(bool status) {
     isDiag = status;
 }

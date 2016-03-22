@@ -17,9 +17,9 @@ float IOU(std::vector<float>& bb_test, std::vector<float>& bb_gt)
 
 }
 
-std::vector<float>& ConvertBox2Z(std::vector<float>& bbox)
+std::vector<float> ConvertBox2Z(std::vector<float>& bbox)
 {
-    std::vector<float> z_box;
+    std::vector<float> z_box(4);
     double w = bbox[2] - bbox[0];
     double h = bbox[3] - bbox[1];
     z_box[0] = (bbox[0] + bbox[2]) / 2;
@@ -30,9 +30,9 @@ std::vector<float>& ConvertBox2Z(std::vector<float>& bbox)
     return z_box;
 }
 
-std::vector<float>& ConvertZ2Box(std::vector<float>& Z)
+std::vector<float> ConvertZ2Box(std::vector<float>& Z)
 {
-    std::vector<float> bbox;
+    std::vector<float> bbox(4);
     double w = std::sqrt(Z[2] * Z[3]);
     double h = Z[2] / w;
     bbox[0] = Z[0] - w/2.0;

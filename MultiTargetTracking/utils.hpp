@@ -32,12 +32,12 @@ float IOU(std::vector<float>& bb_test, std::vector<float>& bb_gt);
 /*Transform a bounding box in a form[x1,y1,x2,y2] into form [x,y,s,r]
 where the x,y is the center of the box, s is the scale/area and r is the aspect ratio
 */
-std::vector<float>& ConvertBox2Z(std::vector<float>& bbox);
+std::vector<float> ConvertBox2Z(std::vector<float>& bbox);
 
 /*Transform the box in a form[x,y,s,r] into form [x1,y1,x2,y2]
 where x1,y1 is the top left and x2,y2 is the bottom right
 */
-std::vector<float>& ConvertZ2Box(std::vector<float>& Z);
+std::vector<float> ConvertZ2Box(std::vector<float>& Z);
 
 /*Visualize the tracking result*/
 cv::Mat vis_tracker(cv::Mat& img, std::vector<data>& trackers);
