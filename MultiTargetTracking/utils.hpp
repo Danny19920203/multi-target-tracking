@@ -9,6 +9,8 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <cstdio>
 
 struct data 
 {
@@ -40,7 +42,7 @@ where x1,y1 is the top left and x2,y2 is the bottom right
 std::vector<float> ConvertZ2Box(std::vector<float>& Z);
 
 /*Visualize the tracking result*/
-cv::Mat vis_tracker(cv::Mat& img, std::vector<data>& trackers);
+cv::Mat vis_tracker(cv::Mat_<double> colours, cv::Mat& img, std::vector<data>& trackers);
 
 #endif //UTILS_HPP
 

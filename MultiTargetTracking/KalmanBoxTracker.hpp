@@ -27,11 +27,9 @@ class KalmanBoxTracker
         int measure_dim = 4;
         float time_since_update;
         int id; //specify the person id
-        int count = 0;
         int hits;
         int hit_streak;
         int age;
-
 };
 
 

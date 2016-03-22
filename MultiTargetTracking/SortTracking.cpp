@@ -54,8 +54,9 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
     Munkres m; //Hungarian
     m.diag(false);
     get_matched GM = m.assign(dets, pred_trks, 0.3);  //Hungarian algorithm
-
-    std::cout<<"assign"<<std::endl;
+    
+    // for(unsigned int i = 0; i < dets.size(); i++)
+    std::cout<<"Number of detections: "<<dets.size()<<std::endl;
     
     for (unsigned int i =0; i < GM.matched.size(); i++)
     {
@@ -90,7 +91,6 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
 
     }
 
-
     std::cout<<"unmatched dets's size: "<<GM.unmatched_dets.size()<<std::endl;
 
     /*Next, create and initialise new trackers for unmatched detections
@@ -98,16 +98,18 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
     for (unsigned int i = 0; i < GM.unmatched_dets.size(); i++)
     {
         int idx = GM.unmatched_dets[i];
-        KalmanBoxTracker* kf = new KalmanBoxTracker(dets[idx].bbox); /////bug
+
+        KalmanBoxTracker* kf = new KalmanBoxTracker(dets[idx].bbox); //remember the rule of three
+        kf->id = count;
         std::cout<<"Create the tracker: "<<i<<std::endl;
+        count ++;
         trackers.push_back(kf);
     }
     
-    
-
     int num_tracker = trackers.size();
     std::cout<<"num_tracker: "<<num_tracker<<std::endl;
-
+     
+    remain.clear();
     for (int i = num_tracker - 1; i >= 0; i--)
     {
         std::vector<float> box = trackers[i]->GetState();

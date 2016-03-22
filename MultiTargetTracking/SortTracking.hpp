@@ -22,6 +22,7 @@ public:
     int max_age;
     int min_hits;
     int frame_count;
+    int count = 0;
     std::vector<KalmanBoxTracker*> trackers;
     std::vector<data> remain; 
 

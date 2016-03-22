@@ -61,8 +61,7 @@ KalmanBoxTracker::KalmanBoxTracker(std::vector<float>& bbox)
     lastBbox = bbox;
     history.clear();
     time_since_update = 0;
-    id = count;
-    count += 1;
+    id = 0;
     hits = 0;
     hit_streak = 0;
     age = 0;

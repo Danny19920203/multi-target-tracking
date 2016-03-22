@@ -27,6 +27,12 @@ int main(int argc, char *argv[])
   std::string prototxt = "/home/samlong/Documents/py-faster-rcnn/models/ZF/faster_rcnn_end2end/test2-C.prototxt";
   std::string caffemodel = "/home/samlong/Documents/py-faster-rcnn/output/SN-perser/trainval/zf_faster_rcnn_iter_70000.caffemodel";
   std::string video_file = "/home/samlong/Videos/video1.avi";
+  cv::Mat_<double> colours(32, 3);
+  for (int row = 0; row < colours.rows; row++)
+    for (int col = 0; col < colours.cols; col++)
+    {
+        colours(row, col) = rand() % 255;
+    }
 
   Sort mot_tracker; //tracker
   cv::VideoCapture cap;
@@ -42,7 +48,7 @@ int main(int argc, char *argv[])
 
   cv::namedWindow("Video", CV_WINDOW_AUTOSIZE);
 
-  int counter = 1;
+  int counter = 0;
   while (cap.read(image))
   {
     //detect first, then tracking
@@ -50,23 +56,22 @@ int main(int argc, char *argv[])
     {
       cv::Mat img1 = handle.ImDetect(image);
       std::vector<data> box_data = handle.getBoxData();
+      std::cout<<"number of boxes"<<box_data.size()<<std::endl;
       for(unsigned int i = 0;i<box_data.size();i++)
       {
           std::vector<float> bbox = box_data[i].bbox;
           for(unsigned int j = 0; j<bbox.size();j++)
             std::cout<<bbox[j]<<" ";
           std::cout<<std::endl;
-
       }
 
       std::vector<data> trackers = mot_tracker.Update(handle.getBoxData());
       std::cout<<"The size of trackers: "<<trackers.size()<<std::endl;
-      cv::Mat img = vis_tracker(image, trackers);
+      cv::Mat img = vis_tracker(colours, image, trackers);
       cv::imshow("Video", img);
       if (cv::waitKey(10) == 'q')
         break;
     }
-
 
     counter++;
   }
