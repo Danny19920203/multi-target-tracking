@@ -46,11 +46,18 @@ cv::Mat vis_tracker(cv::Mat_<double> colours, cv::Mat& img, std::vector<data>& t
 
     for (unsigned int i = 0; i < trackers.size(); i++)
     {
-        std::cout<<"The trackers' index: "<<trackers[i].index<<std::endl;
+        // std::cout<<"The trackers' index: "<<trackers[i].index<<std::endl;
+
         int selRows = trackers[i].index % colours.rows;
+        cv::Scalar color = cv::Scalar(colours(selRows, 0), colours(selRows, 1), colours(selRows, 2));
 
         std::vector<float> bbox = trackers[i].bbox;
-        cv::rectangle(img, cv::Point(bbox[0], bbox[1]), cv::Point(bbox[2], bbox[3]), cv::Scalar(colours(selRows,0), colours(selRows,1), colours(selRows,2)), 2); //draw the bounding box
+        cv::rectangle(img, cv::Point(bbox[0], bbox[1]), cv::Point(bbox[2], bbox[3]), color, 2); //draw the bounding box
+        // cv::rectangle(img, cv::Rect(bbox[0], bbox[1] - 15, 80,15), cv::Scalar(255,255,255), -1);
+        float per_score = trackers[i].score;
+        char str_score[15];
+        std::sprintf(str_score, "%f", per_score);
+        cv::putText(img, str_score, cv::Point(bbox[0], bbox[1] - 5), cv::FONT_HERSHEY_SCRIPT_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1, 5);
     }
     cv::Mat image = img.clone();
     return image;

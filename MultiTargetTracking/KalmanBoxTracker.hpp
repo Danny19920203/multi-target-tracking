@@ -13,23 +13,24 @@
 
 class KalmanBoxTracker
 {
-    public:
-        KalmanBoxTracker(std::vector<float>&); //vector(x1,y1,x2,y2),note the state is(x1,y1,s,r,...) s=w*h r=w/h
-        ~KalmanBoxTracker();
-        std::vector<float> Predict(); //predict the box
-        std::vector<float> Update(std::vector<float>&); //update the kalman filter
-        std::vector<float> GetState();
-        
-        cv::KalmanFilter* KF;
-        std::vector<float> lastBbox;
-        std::vector<std::vector<float> > history;
-        int state_dim = 7;
-        int measure_dim = 4;
-        float time_since_update;
-        int id; //specify the person id
-        int hits;
-        int hit_streak;
-        int age;
+public:
+    KalmanBoxTracker(std::vector<float>&); //vector(x1,y1,x2,y2),note the state is(x1,y1,s,r,...) s=w*h r=w/h
+    ~KalmanBoxTracker();
+    std::vector<float> Predict(); //predict the box
+    std::vector<float> Update(std::vector<float>&); //update the kalman filter
+    std::vector<float> GetState();
+
+    cv::KalmanFilter* KF;
+    std::vector<float> lastBbox;
+    std::vector<std::vector<float> > history;
+    float score;
+    int state_dim = 7;
+    int measure_dim = 4;
+    float time_since_update;
+    int id; //specify the person id
+    int hits;
+    int hit_streak;
+    int age;
 };
 
 

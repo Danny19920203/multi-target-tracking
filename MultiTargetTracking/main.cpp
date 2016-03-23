@@ -26,8 +26,10 @@ int main(int argc, char *argv[])
   //test the video file, tracking by detection
   std::string prototxt = "/home/samlong/Documents/py-faster-rcnn/models/ZF/faster_rcnn_end2end/test2-C.prototxt";
   std::string caffemodel = "/home/samlong/Documents/py-faster-rcnn/output/SN-perser/trainval/zf_faster_rcnn_iter_70000.caffemodel";
-  std::string video_file = "/home/samlong/Videos/video1.avi";
-  cv::Mat_<double> colours(32, 3);
+  // std::string prototxt = "/home/samlong/Documents/py-faster-rcnn/models/ZF/faster_rcnn_end2end/test2-svd-C.prototxt";
+  // std::string caffemodel = "/home/samlong/Documents/py-faster-rcnn/output/SN-perser/trainval/zf_faster_rcnn_iter_70000_svd_fc6_512_fc7_256.caffemodel";
+  std::string video_file = "/home/samlong/Videos/test.avi";
+  cv::Mat_<double> colours(32, 3); //random for the color, mark for tracking
   for (int row = 0; row < colours.rows; row++)
     for (int col = 0; col < colours.cols; col++)
     {
@@ -52,21 +54,22 @@ int main(int argc, char *argv[])
   while (cap.read(image))
   {
     //detect first, then tracking
-    if (counter % 2 == 0)
+    if (counter % 1 == 0)
     {
       cv::Mat img1 = handle.ImDetect(image);
-      std::vector<data> box_data = handle.getBoxData();
-      std::cout<<"number of boxes"<<box_data.size()<<std::endl;
-      for(unsigned int i = 0;i<box_data.size();i++)
-      {
-          std::vector<float> bbox = box_data[i].bbox;
-          for(unsigned int j = 0; j<bbox.size();j++)
-            std::cout<<bbox[j]<<" ";
-          std::cout<<std::endl;
-      }
+
+      // std::vector<data> box_data = handle.getBoxData();
+      // std::cout<<"number of boxes"<<box_data.size()<<std::endl;
+      // for(unsigned int i = 0;i<box_data.size();i++)
+      // {
+      //     std::vector<float> bbox = box_data[i].bbox;
+      //     for(unsigned int j = 0; j<bbox.size();j++)
+      //       std::cout<<bbox[j]<<" ";
+      //     std::cout<<std::endl;
+      // }
 
       std::vector<data> trackers = mot_tracker.Update(handle.getBoxData());
-      std::cout<<"The size of trackers: "<<trackers.size()<<std::endl;
+      // std::cout<<"The size of trackers: "<<trackers.size()<<std::endl;
       cv::Mat img = vis_tracker(colours, image, trackers);
       cv::imshow("Video", img);
       if (cv::waitKey(10) == 'q')

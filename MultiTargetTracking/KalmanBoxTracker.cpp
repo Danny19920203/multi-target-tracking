@@ -40,7 +40,7 @@ KalmanBoxTracker::KalmanBoxTracker(std::vector<float>& bbox)
     }
 
     std::vector<float> Z =  ConvertBox2Z(bbox);
-    
+
     KF->statePre.at<float>(0) = Z[0];
     KF->statePre.at<float>(1) = Z[1];
     KF->statePre.at<float>(2) = Z[2]; //scale = w*h
@@ -65,6 +65,7 @@ KalmanBoxTracker::KalmanBoxTracker(std::vector<float>& bbox)
     hits = 0;
     hit_streak = 0;
     age = 0;
+    score = 0.0;
 
 }
 
@@ -75,10 +76,10 @@ KalmanBoxTracker::~KalmanBoxTracker()
 
 std::vector<float> KalmanBoxTracker::Predict()
 {
-   
+
     if (KF->statePost.at<float>(2) + KF->statePost.at<float>(6) <= 0)
         KF->statePost.at<float>(6) *= 0.0;
-    
+
     cv::Mat prediction = KF->predict();
 
     age += 1;
@@ -98,7 +99,7 @@ std::vector<float> KalmanBoxTracker::Predict()
 }
 
 std::vector<float> KalmanBoxTracker::Update(std::vector<float>& newBox)
-{   //update the box state with the new box
+{   //update the box state with the detection box
     time_since_update = 0;
     history.clear();
     hits += 1;

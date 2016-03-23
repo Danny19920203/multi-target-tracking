@@ -16,8 +16,8 @@ Sort::~Sort()
 std::vector<data> Sort::Update(std::vector<data>& dets)
 {
     frame_count += 1;
-    std::cout<<"frame number: "<<frame_count<<std::endl;
-    std::cout<<"tracker size: "<<trackers.size()<<std::endl;
+    std::cout << "frame number: " << frame_count << std::endl;
+    std::cout << "tracker size: " << trackers.size() << std::endl;
     /*First, get the predicted locations form the exsiting trackers*/
     std::vector<data> pred_trks; //store the predict positions
     std::vector<int> to_del; //record the nan index
@@ -48,19 +48,19 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
         std::vector<KalmanBoxTracker*>::iterator iter = trackers.begin() + i;
         trackers.erase(iter);
     }
-    
-    std::cout<<"trks's size:"<<pred_trks.size()<<std::endl;
+
+    std::cout << "trks's size:" << pred_trks.size() << std::endl;
 
     Munkres m; //Hungarian
     m.diag(false);
     get_matched GM = m.assign(dets, pred_trks, 0.3);  //Hungarian algorithm
-    
+
     // for(unsigned int i = 0; i < dets.size(); i++)
-    std::cout<<"Number of detections: "<<dets.size()<<std::endl;
-    
-    for (unsigned int i =0; i < GM.matched.size(); i++)
+    std::cout << "Number of detections: " << dets.size() << std::endl;
+
+    for (unsigned int i = 0; i < GM.matched.size(); i++)
     {
-        std::cout<<GM.matched[i].first<<" "<<GM.matched[i].second<<std::endl;
+        std::cout << GM.matched[i].first << " " << GM.matched[i].second << std::endl;
     }
 
     /*Then, update matched trackers with assigned detections*/
@@ -91,7 +91,7 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
 
     }
 
-    std::cout<<"unmatched dets's size: "<<GM.unmatched_dets.size()<<std::endl;
+    std::cout << "unmatched dets's size: " << GM.unmatched_dets.size() << std::endl;
 
     /*Next, create and initialise new trackers for unmatched detections
     We relie on the detection accuracy heavily*/
@@ -101,23 +101,24 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
 
         KalmanBoxTracker* kf = new KalmanBoxTracker(dets[idx].bbox); //remember the rule of three
         kf->id = count;
-        std::cout<<"Create the tracker: "<<i<<std::endl;
+        kf->score = dets[idx].score;
+        std::cout << "Create the tracker: " << i << std::endl;
         count ++;
         trackers.push_back(kf);
     }
-    
+
     int num_tracker = trackers.size();
-    std::cout<<"num_tracker: "<<num_tracker<<std::endl;
-     
+    std::cout << "num_tracker: " << num_tracker << std::endl;
+
     remain.clear();
     for (int i = num_tracker - 1; i >= 0; i--)
     {
         std::vector<float> box = trackers[i]->GetState();
-        if ((trackers[i]->time_since_update < 1) & (trackers[i]->hit_streak >= min_hits || frame_count <= min_hits))
+        if ((trackers[i]->time_since_update < max_age) & (trackers[i]->hit_streak >= min_hits || frame_count <= min_hits))
         {
             data foo;
             foo.bbox = box;
-            foo.score = 0;
+            foo.score = trackers[i]->score;
             foo.index = trackers[i]->id + 1;
             remain.push_back(foo);
         }
@@ -129,7 +130,7 @@ std::vector<data> Sort::Update(std::vector<data>& dets)
             trackers.erase(iter);
         }
     }
-    std::cout<<"pred2 trks size: "<<pred_trks.size()<<std::endl;
+    std::cout << "pred2 trks size: " << pred_trks.size() << std::endl;
     if (remain.size() > 0)
         return remain;
     else
